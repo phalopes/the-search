@@ -1,0 +1,32 @@
+# Documentação auxiliar (planos, escopo, notas) — não versionada
+docs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Ambientes virtuais
+env/
+.venv/
+venv/
+
+# Segredos / config local
+.env
+.env.*
+!.env.example
+
+# Dados locais (histórico, cache de coleta)
+data/*.db
+data/*.sqlite
+
+# IDE
+.idea/
+.vscode/

@@ -1,0 +1,71 @@
+[project]
+name = "surfscout"
+version = "0.1.0"
+description = "Motor de recomendação de picos de surf (Florianópolis e região) — POC"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.9",
+    "pydantic-settings>=2.5",
+    "httpx>=0.27",
+    "tenacity>=9.0",
+    "pyyaml>=6.0",
+    "typer>=0.12",
+    "structlog>=24.4",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "pytest>=8.3",
+    "pytest-cov>=5.0",
+    "pytest-asyncio>=0.24",
+    "respx>=0.21",
+    "freezegun>=1.5",
+    "pre-commit>=3.8",
+    "types-PyYAML>=6.0",
+]
+
+[project.scripts]
+surfscout = "surfscout.app.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/surfscout"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
+
+[tool.ruff.lint.per-file-ignores]
+# typer.Option(...)/Argument(...) como default é o padrão exigido pelo typer.
+"src/surfscout/app/cli.py" = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["surfscout"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: testes unitários puros (domain), sem I/O",
+    "integration: testes de adapters com HTTP mockado",
+    "live: bate em API real — não roda em CI, só manual",
+]
+addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+source = ["src/surfscout"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true

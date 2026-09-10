@@ -1,0 +1,158 @@
+# Perfil estático dos picos — preenchido a partir de pesquisa (surf-forecast.com,
+# breakfinder.surf, guias locais) em 2026-09-09. Não é 100% preciso: é a estimativa
+# inicial pra sair do zero, conforme pedido. Ajuste os campos conforme sua própria
+# vivência nos picos ao longo da validação da PoC — o campo `notas` de cada pico
+# já aponta onde a fonte era ambígua ou onde vale mais atenção sua.
+#
+# Convenção de direção: graus 0-360, sentido "de onde vem" (N=0, E=90, S=180, W=270) —
+# mesma convenção usada pelo Open-Meteo Marine e pelo Stormglass.
+#
+# `deslocamento_min` (tempo até o pico, em minutos) preenchido com os tempos reais
+# informados por você em 2026-09-09.
+#
+# `nivel` — nível de surfista pra quem o pico costuma funcionar bem, escala:
+# iniciante | iniciante-intermediario | intermediario | intermediario-avancado | avancado
+#
+# `mare_ideal.fase_preferida` — além da altura (que já captura "não é maré seca
+# extrema"), alguns picos têm preferência pela FASE da maré (subindo vs descendo),
+# não só pela altura absoluta. Valores: enchente | vazante | preamar | baixa-mar |
+# enchente_ate_inicio_vazante | sem_preferencia_clara.
+
+# ---------------------------------------------------------------------------
+# PICOS REAIS
+# ---------------------------------------------------------------------------
+
+- id: mole
+  nome: "Mole"
+  regiao: "Florianópolis, SC"
+  coordenadas:
+    lat: -27.6000
+    lon: -48.4300
+  fundo: areia
+  nivel: intermediario-avancado
+  deslocamento_min: 35
+  swell_ideal:
+    direcao_min_graus: 90     # E
+    direcao_max_graus: 140    # SE
+    periodo_min_s: 8          # abaixo disso o groundswell chega fraco
+    periodo_max_s: null
+  vento_ideal:
+    direcao_offshore_min_graus: 270   # W
+    direcao_offshore_max_graus: 320   # NW
+    velocidade_max_ms: 10             # acima disso o mar fica desalinhado mesmo offshore
+  mare_ideal:
+    fase_preferida: sem_preferencia_clara
+    altura_min_m: 0.1
+    altura_max_m: 0.6
+  tamanho_ideal:
+    altura_min_m: 0.8
+    altura_max_m: 2.0
+  notas: "Praia de mar aberto e fundo de areia, entre a Ponta do Gravatá e a Galheta. Onda forte e rápida, correnteza (repuxo) — nível intermediário/avançado. Ideal com swell de E-SE e vento offshore de W-NW (algumas fontes citam também S como componente favorável, tratar como bônus, não regra principal). Maré: funciona melhor baixa-média. Fonte: surf-forecast.com — cruzar com sua vivência."
+
+- id: campeche
+  nome: "Campeche"
+  regiao: "Florianópolis, SC"
+  coordenadas:
+    lat: -27.6900
+    lon: -48.4800
+  fundo: areia
+  nivel: intermediario
+  deslocamento_min: 25
+  swell_ideal:
+    direcao_min_graus: 145    # SE — ampliado após pesquisa: melhores direitas também vêm do componente SE
+    direcao_max_graus: 200    # SSW
+    periodo_min_s: 8
+    periodo_max_s: null
+  vento_ideal:
+    direcao_offshore_min_graus: 295   # WNW
+    direcao_offshore_max_graus: 335   # NNW
+    velocidade_max_ms: 11
+  mare_ideal:
+    fase_preferida: enchente_ate_inicio_vazante   # confirmado por você
+    altura_min_m: 0.3
+    altura_max_m: 1.0
+  tamanho_ideal:
+    altura_min_m: 0.8
+    altura_max_m: 1.8
+  notas: "Praia extensa (3,5km) e de mar de tombo. Ideal com swell de S e vento offshore de NW. Confirmado por você: funciona bem da maré subindo até o começo da vazante; na maré seca (baixa-mar, principalmente em sizígia) fica muito cavada/fechada. Correnteza forte em dias maiores. A praia tem trechos distintos: o 'Pico' central é mais acessível, e o extremo norte ('Point do Riozinho') é mais oco/avançado (esse trecho não está mais cadastrado como pico separado nesta lista — decisão consciente de manter só Joaquina como 5º pico, perdendo o perfil de barril avançado que Riozinho tinha). Pesquisa (2026-09-09, surf-forecast.com/mondo.surf/stormrider.surf) confirma orientação sul e vento NW; ampliou o range de swell para incluir SE (~145°)."
+
+- id: matadeiro
+  nome: "Matadeiro"
+  regiao: "Florianópolis, SC"
+  coordenadas:
+    lat: -27.7500
+    lon: -48.5100
+  fundo: areia
+  nivel: intermediario   # ajustado após pesquisa (2026-09-09): fontes descrevem Matadeiro como intermediário pela força da onda e localismo — nenhuma fonte encontrada o classifica como beginner-friendly
+  deslocamento_min: 33
+  swell_ideal:
+    direcao_min_graus: 45     # NE — ampliado após pesquisa: janela real é NE-E-SE, mais larga que só em torno de Leste
+    direcao_max_graus: 135    # SE
+    periodo_min_s: 7          # mais tolerante a período curto que os outros
+    periodo_max_s: null
+  vento_ideal:
+    direcao_offshore_min_graus: 160   # SSE
+    direcao_offshore_max_graus: 200   # SSW (centrado em Sul)
+    velocidade_max_ms: 10
+  mare_ideal:
+    fase_preferida: enchente_ate_inicio_vazante   # confirmado por você
+    altura_min_m: 0.2
+    altura_max_m: 0.6
+  tamanho_ideal:
+    altura_min_m: 0.4
+    altura_max_m: 1.0
+  notas: "Confirmado por você: funciona bem com ondulação de Leste e vento Sul — o morro protege o pico do vento sul, tornando-o efetivamente offshore ali. Também funciona bem da maré subindo até o começo da vazante; na maré seca fica muito cavada. Perfil parecido com o da Barra da Lagoa. Fundo de areia na foz de rio (banco móvel — revisar perfil periodicamente, pode mudar de forma após ressacas/enchentes). Cuidado com correnteza de retorno mesmo em ondas pequenas. Pesquisa (2026-09-09, mondo.surf/surf-forecast.com) ampliou a janela de swell para NE-SE e reclassificou o nível para intermediário — reveja se sua vivência pessoal discordar."
+
+- id: joaquina
+  nome: "Joaquina"
+  regiao: "Florianópolis, SC"
+  coordenadas:
+    lat: -27.6300
+    lon: -48.4500
+  fundo: areia
+  nivel: intermediario-avancado
+  deslocamento_min: 35
+  swell_ideal:
+    direcao_min_graus: 45     # NE
+    direcao_max_graus: 180    # S — janela ampla, mais forte perto de SE (~135°)
+    periodo_min_s: 8
+    periodo_max_s: null
+  vento_ideal:
+    direcao_offshore_min_graus: 300   # NW
+    direcao_offshore_max_graus: 330   # NNW
+    velocidade_max_ms: 11
+  mare_ideal:
+    fase_preferida: enchente   # fonte: surfnerd.com — funciona em qualquer maré, mas enchente é melhor
+    altura_min_m: 0.0
+    altura_max_m: 1.2
+  tamanho_ideal:
+    altura_min_m: 0.8
+    altura_max_m: 2.5
+  notas: "Point mais tradicional/competitivo da ilha — banco de areia móvel junto a um costão rochoso, já sediou etapas de circuito mundial e tem iluminação pra sessão noturna. Janela de swell ampla (NE a S), mas mais forte com SE. Vento ideal offshore de NW. Costuma ficar cheio e tem correnteza — nível intermediário/avançado na prática, apesar de agregadores genéricos classificarem como 'beginner'. Funciona em qualquer maré, um pouco melhor na enchente. Fica ao lado de Mole/Galheta/Barra da Lagoa, mesma faixa de dunas. Fonte: surf-forecast.com + surfnerd.com."
+
+- id: barra-da-lagoa
+  nome: "Barra da Lagoa"
+  regiao: "Florianópolis, SC"
+  coordenadas:
+    lat: -27.5700
+    lon: -48.4300
+  fundo: areia
+  nivel: iniciante-intermediario
+  deslocamento_min: 41
+  swell_ideal:
+    direcao_min_graus: 45     # NE
+    direcao_max_graus: 95     # E
+    periodo_min_s: 8
+    periodo_max_s: null
+  vento_ideal:
+    direcao_offshore_min_graus: 225   # SW
+    direcao_offshore_max_graus: 265   # W
+    velocidade_max_ms: 10
+  mare_ideal:
+    fase_preferida: baixa-mar   # ajustado após pesquisa (2026-09-09): surfa em qualquer maré, mas baixa-mar expõe melhor o banco de areia (ondas mais definidas)
+    altura_min_m: 0.0
+    altura_max_m: 1.0
+  tamanho_ideal:
+    altura_min_m: 0.6
+    altura_max_m: 1.5
+  notas: "Pico na foz do canal da Lagoa da Conceição — o mais 'protegido' dos 5, por isso precisa de swell mais de NE/E (mais ao norte que os outros) pra entrar bem; com um pouco de proteção adicional pra vento leve de ESE. Bom nível iniciante/intermediário, confirmado por pesquisa. Costuma ficar cheio (localismo citado como risco). Fonte: surf-forecast.com (2026-09-09)."
