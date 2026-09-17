@@ -17,6 +17,10 @@
 # extrema"), alguns picos têm preferência pela FASE da maré (subindo vs descendo),
 # não só pela altura absoluta. Valores: enchente | vazante | preamar | baixa-mar |
 # enchente_ate_inicio_vazante | sem_preferencia_clara.
+#
+# `coordenadas` dos 5 picos reais atualizadas em 2026-09-10: substituídas as
+# estimativas de pesquisa pela marcação pessoal sua no Windy.com (ponto exato de
+# onde você costuma pegar onda em cada pico) — mais preciso pra consulta às APIs.
 
 # ---------------------------------------------------------------------------
 # PICOS REAIS
@@ -26,8 +30,8 @@
   nome: "Mole"
   regiao: "Florianópolis, SC"
   coordenadas:
-    lat: -27.6000
-    lon: -48.4300
+    lat: -27.6020   # atualizado em 2026-09-10: marcação pessoal no Windy (onde você costuma pegar onda), substitui estimativa de pesquisa
+    lon: -48.4280
   fundo: areia
   nivel: intermediario-avancado
   deslocamento_min: 35
@@ -53,8 +57,8 @@
   nome: "Campeche"
   regiao: "Florianópolis, SC"
   coordenadas:
-    lat: -27.6900
-    lon: -48.4800
+    lat: -27.6950   # atualizado em 2026-09-10: marcação pessoal no Windy (onde você costuma pegar onda), substitui estimativa de pesquisa
+    lon: -48.4820
   fundo: areia
   nivel: intermediario
   deslocamento_min: 25
@@ -80,8 +84,8 @@
   nome: "Matadeiro"
   regiao: "Florianópolis, SC"
   coordenadas:
-    lat: -27.7500
-    lon: -48.5100
+    lat: -27.7530   # atualizado em 2026-09-10: marcação pessoal no Windy (onde você costuma pegar onda), substitui estimativa de pesquisa
+    lon: -48.4960
   fundo: areia
   nivel: intermediario   # ajustado após pesquisa (2026-09-09): fontes descrevem Matadeiro como intermediário pela força da onda e localismo — nenhuma fonte encontrada o classifica como beginner-friendly
   deslocamento_min: 33
@@ -107,8 +111,8 @@
   nome: "Joaquina"
   regiao: "Florianópolis, SC"
   coordenadas:
-    lat: -27.6300
-    lon: -48.4500
+    lat: -27.6330   # atualizado em 2026-09-10: marcação pessoal no Windy (onde você costuma pegar onda), substitui estimativa de pesquisa
+    lon: -48.4470
   fundo: areia
   nivel: intermediario-avancado
   deslocamento_min: 35
@@ -134,8 +138,8 @@
   nome: "Barra da Lagoa"
   regiao: "Florianópolis, SC"
   coordenadas:
-    lat: -27.5700
-    lon: -48.4300
+    lat: -27.5690   # atualizado em 2026-09-10: marcação pessoal no Windy (onde você costuma pegar onda), substitui estimativa de pesquisa
+    lon: -48.4260
   fundo: areia
   nivel: iniciante-intermediario
   deslocamento_min: 41
