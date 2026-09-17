@@ -1,9 +1,18 @@
 """Adapter para Open-Meteo Marine + Weather APIs.
 
 Cuidado documentado no escopo do projeto: omitir o parâmetro `models` pode
-fazer a API retornar nulo silenciosamente fora da Europa. `best_match` fixa
-o parâmetro explicitamente e deixa a API escolher o melhor modelo global
-disponível para o ponto.
+fazer a API retornar nulo silenciosamente fora da Europa.
+
+Investigação de 2026-09-17 (docs/validacao/2026-09-17/): comparamos os modelos
+de onda disponíveis pra costa de Floripa contra o Surf Guru (validado por 3
+sessões reais). `best_match` resolve pra `meteofrance_wave` aqui, que
+subestima período de swell de forma consistente (~6.5s vs ~10-11s reais).
+`gwam` (DWD Global Wave Model) bateu muito mais perto do real (período ~7.9s,
+altura quase idêntica). Por isso pedimos os dois modelos na mesma chamada e
+usamos `gwam` pro swell — mas `gwam` não retorna `sea_level_height_msl` (é só
+um modelo de onda, sem maré), então a maré continua vindo do `best_match`.
+Isso é exatamente o tipo de "nulo silencioso" que o escopo alertava: pedir só
+`gwam` sem cruzar com `best_match` teria zerado a maré sem erro nenhum.
 """
 
 import datetime as dt
@@ -16,7 +25,10 @@ from surfscout.domain.models import Coordenadas, SwellReading, TidePhase, TideRe
 
 MARINE_URL = "https://marine-api.open-meteo.com/v1/marine"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
-MODEL = "best_match"
+MARINE_MODELS = "best_match,gwam"
+WIND_MODEL = "best_match"
+SWELL_MODEL_SUFFIX = "gwam"
+TIDE_MODEL_SUFFIX = "marine_best_match"
 TIMEZONE = "America/Sao_Paulo"
 TIMEOUT = httpx.Timeout(10.0, connect=5.0)
 
@@ -50,7 +62,7 @@ def fetch_marine(coordenadas: Coordenadas, forecast_days: int = 3) -> dict[str, 
             "hourly": (
                 "swell_wave_height,swell_wave_direction,swell_wave_period,sea_level_height_msl"
             ),
-            "models": MODEL,
+            "models": MARINE_MODELS,
             "timezone": TIMEZONE,
             "forecast_days": forecast_days,
         },
@@ -65,7 +77,7 @@ def fetch_wind(coordenadas: Coordenadas, forecast_days: int = 3) -> dict[str, An
             "longitude": coordenadas.lon,
             "hourly": "wind_speed_10m,wind_direction_10m",
             "wind_speed_unit": "ms",
-            "models": MODEL,
+            "models": WIND_MODEL,
             "timezone": TIMEZONE,
             "forecast_days": forecast_days,
         },
@@ -95,6 +107,11 @@ def fetch_readings(
     marine = fetch_marine(coordenadas, forecast_days)["hourly"]
     vento = fetch_wind(coordenadas, forecast_days)["hourly"]
 
+    altura_swell = marine[f"swell_wave_height_{SWELL_MODEL_SUFFIX}"]
+    direcao_swell = marine[f"swell_wave_direction_{SWELL_MODEL_SUFFIX}"]
+    periodo_swell = marine[f"swell_wave_period_{SWELL_MODEL_SUFFIX}"]
+    altura_mare = marine[f"sea_level_height_msl_{TIDE_MODEL_SUFFIX}"]
+
     idx_marine = _nearest_index(marine["time"], at)
     idx_vento = _nearest_index(vento["time"], at)
 
@@ -102,14 +119,14 @@ def fetch_readings(
 
     swell = SwellReading(
         timestamp=timestamp,
-        altura_m=marine["swell_wave_height"][idx_marine],
-        direcao_graus=marine["swell_wave_direction"][idx_marine],
-        periodo_s=marine["swell_wave_period"][idx_marine],
+        altura_m=altura_swell[idx_marine],
+        direcao_graus=direcao_swell[idx_marine],
+        periodo_s=periodo_swell[idx_marine],
     )
     mare = TideReading(
         timestamp=timestamp,
-        altura_m=marine["sea_level_height_msl"][idx_marine],
-        fase=_tide_phase(marine["sea_level_height_msl"], idx_marine),
+        altura_m=altura_mare[idx_marine],
+        fase=_tide_phase(altura_mare, idx_marine),
     )
     vento_reading = WindReading(
         timestamp=dt.datetime.fromisoformat(vento["time"][idx_vento]),

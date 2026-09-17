@@ -13,10 +13,10 @@ runner = CliRunner()
 MARINE_BODY = {
     "hourly": {
         "time": ["2026-09-10T07:00"],
-        "swell_wave_height": [1.2],
-        "swell_wave_direction": [110],
-        "swell_wave_period": [10],
-        "sea_level_height_msl": [0.5],
+        "swell_wave_height_gwam": [1.2],
+        "swell_wave_direction_gwam": [110],
+        "swell_wave_period_gwam": [10],
+        "sea_level_height_msl_marine_best_match": [0.5],
     }
 }
 
