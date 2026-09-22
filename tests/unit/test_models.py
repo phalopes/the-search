@@ -1,7 +1,9 @@
+from datetime import date
+
 import pytest
 from pydantic import ValidationError
 
-from surfscout.domain.models import SpotProfile
+from surfscout.domain.models import RegistroValidacao, SpotProfile, TipoRegistro
 
 pytestmark = pytest.mark.unit
 
@@ -51,3 +53,19 @@ def test_direcao_fora_de_0_360_eh_rejeitada() -> None:
     dados["swell_ideal"] = {**dados["swell_ideal"], "direcao_min_graus": 400}
     with pytest.raises(ValidationError):
         SpotProfile.model_validate(dados)
+
+
+def test_registro_validacao_usa_sessao_real_por_padrao() -> None:
+    registro = RegistroValidacao(data=date(2026, 9, 22), pico_id="matadeiro")
+    assert registro.tipo == TipoRegistro.SESSAO_REAL
+    assert registro.id is None
+
+
+def test_registro_validacao_rejeita_nota_fora_de_1_a_5() -> None:
+    with pytest.raises(ValidationError):
+        RegistroValidacao(data=date(2026, 9, 22), pico_id="matadeiro", nota=6)
+
+
+def test_registro_validacao_aceita_nota_com_casa_decimal() -> None:
+    registro = RegistroValidacao(data=date(2026, 9, 22), pico_id="matadeiro", nota=4.5)
+    assert registro.nota == 4.5

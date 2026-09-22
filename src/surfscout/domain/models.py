@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime, time
 from enum import StrEnum
 
 from pydantic import BaseModel, Field
@@ -127,3 +127,25 @@ class ScoreResult(BaseModel):
     @property
     def score_total(self) -> float:
         return round(sum(fator.contribuicao for fator in self.fatores) * 100, 1)
+
+
+class TipoRegistro(StrEnum):
+    SESSAO_REAL = "sessao_real"
+    JULGAMENTO_PRE_SESSAO = "julgamento_pre_sessao"
+
+
+class RegistroValidacao(BaseModel):
+    """Uma entrada do histórico de validação manual (Fase 0/1): o que você viveu
+    de verdade vs. o que o sistema recomendou, pra comparar depois."""
+
+    id: int | None = None
+    data: date
+    horario: time | None = None
+    pico_id: str
+    tipo: TipoRegistro = TipoRegistro.SESSAO_REAL
+    nota: float | None = Field(default=None, ge=1, le=5)
+    observacao: str = ""
+    pico_recomendado: str | None = None
+    score_recomendado: float | None = None
+    score_pico_escolhido: float | None = None
+    criado_em: datetime = Field(default_factory=datetime.now)
