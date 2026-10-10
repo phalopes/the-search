@@ -21,21 +21,26 @@ function checkError(error){if(error)throw error;}
 function summary(){ $('profile-summary').textContent=`${{iniciante:'Iniciante',intermediario:'Intermediário',avancado:'Avançado'}[preferences.level]} · ${preferences.start.slice(0,5)}–${preferences.end.slice(0,5)} · ${preferences.duration} min · ${preferences.spots.length} picos`; }
 function show(view){ $('ocean').hidden=view!=='ocean';$('history').hidden=view!=='history';$('home-nav').toggleAttribute('aria-current',view==='ocean');$('history-nav').toggleAttribute('aria-current',view==='history');if(view==='ocean')$('home-nav').setAttribute('aria-current','page');else $('history-nav').setAttribute('aria-current','page'); }
 async function loadUser(current){
- session=current;const version=++generation;
- $('login').hidden=!!current;$('app').hidden=!current;$('nav').hidden=!current;
+ if(current && session?.user.id===current.user.id && bootstrap){session=current;return;}
+ $('query-form').querySelector('button').disabled=true;
+ session=current;const version=++generation;$('offline').hidden=true;
+ $('login').hidden=!!current;$('app').hidden=true;$('nav').hidden=true;
  if(!current){bootstrap=null;latest=null;preferences=null;$('results').replaceChildren();$('session-list').replaceChildren();return;}
  tell('Carregando seu surf…');
  try{const result=await api('/api/bootstrap');if(version!==generation)return;bootstrap=result;preferences=result.preferences || defaults(result.spots);summary();
  $('spot-checks').innerHTML=result.spots.map(s=>`<label class="check"><input type="checkbox" name="spot" value="${esc(s.id)}">${esc(s.profile.nome)}${s.experimental?' · experimental':''}</label>`).join('');
  $('session-spot').innerHTML=result.spots.map(s=>`<option value="${esc(s.id)}">${esc(s.profile.nome)}</option>`).join('');
  $('travel-field').hidden=!result.admin || !result.travel.length;
+ $('app').hidden=false;$('nav').hidden=false;
+ $('query-form').querySelector('button').disabled=false;
  tell('');show('ocean');$('results').innerHTML='<div class="empty"><h2>Vamos olhar o mar?</h2><p>Escolha o dia e consulte as condições. Ajuste sua disponibilidade em Meu surf.</p></div>';
- }catch(e){tell(e.message);}
+ }catch(e){if(version!==generation)return;if(!navigator.onLine){$('offline').hidden=false;$('login').hidden=true;tell('Sem conexão.');}else{tell(e.message);$('login').hidden=false;}}
 }
 $('login-form').onsubmit=async e=>{e.preventDefault();const button=e.submitter;button.disabled=true;$('login-message').textContent='Enviando seu link…';
  try{const {error}=await sb.auth.signInWithOtp({email:$('email').value.trim(),options:{emailRedirectTo:location.origin,shouldCreateUser:true}});checkError(error);$('login-message').textContent='Confira seu e-mail e abra o link neste aparelho. Se não chegar, olhe o spam e aguarde um minuto antes de tentar novamente.';$('verify-form').hidden=false;}
  catch(e){$('login-message').textContent='Não foi possível enviar. Confira o e-mail autorizado e tente novamente em um minuto.';}finally{button.disabled=false;}};
 $('verify-form').onsubmit=async e=>{e.preventDefault();const {error}=await sb.auth.verifyOtp({email:$('email').value.trim(),token:$('otp').value.trim(),type:'email'});if(error)$('login-message').textContent='Código inválido ou vencido. Peça outro link.';};
+$('retry').onclick=()=>loadUser(session);
 $('logout').onclick=async()=>{await sb.auth.signOut();tell('Você saiu.');};
 $('home-nav').onclick=()=>show('ocean');
 $('history-nav').onclick=async()=>{show('history');await loadHistory();};
@@ -83,7 +88,7 @@ $('session-kind').onchange=ratingVisibility;$('add-session').onclick=()=>openSes
 $('session-form').onsubmit=async e=>{e.preventDefault();e.submitter.disabled=true;const kind=$('session-kind').value;const payload={user_id:session.user.id,spot_id:$('session-spot').value,surf_date:$('session-date').value,starts_at:$('session-time').value||null,kind,rating:kind==='surfed'&&$('session-rating').value!==''?Number($('session-rating').value):null,notes:$('session-notes').value,recommendation:editingRecommendation};
  try{const id=$('session-id').value;const {error}=id?await sb.from('surf_sessions').update(payload).eq('id',id):await sb.from('surf_sessions').insert(payload);checkError(error);$('session-dialog').close();tell('Registro salvo no seu diário.');if(!$('history').hidden)await loadHistory();}
  catch(e){$('session-message').textContent='Não foi possível salvar. Confira a conexão e tente novamente.';}finally{e.submitter.disabled=false;}};
-async function loadHistory(){$('session-list').textContent='Carregando seu diário…';try{const {data,error}=await sb.from('surf_sessions').select('*').order('surf_date',{ascending:false}).limit(200);checkError(error);sessions=data;$('session-list').innerHTML=data.length?data.map(r=>`<article class="session-row"><div><h2>${esc(bootstrap.spots.find(s=>s.id===r.spot_id)?.profile.nome||r.spot_id)}</h2><p>${esc(niceDate(r.surf_date))}${r.starts_at?' · '+esc(r.starts_at.slice(0,5)):''}</p><p>${r.kind==='planned'?'Escolha antes de sair':'Sessão realizada'}${r.rating!==null?' · Nota '+decimal(r.rating)+'/5':''}</p><p class="notes">${esc(r.notes)}</p>${r.recommendation?'<span class="hint">Consulta original preservada com este registro.</span>':''}</div><button data-edit="${esc(r.id)}">${r.kind==='planned'?'Dar parecer':'Editar'}</button></article>`).join(''):'<div class="empty"><h2>Seu diário começa na próxima sessão.</h2><p>Registre uma escolha ou conte como foi o surf.</p></div>';document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openSession(sessions.find(r=>r.id===b.dataset.edit)));}catch(e){$('session-list').textContent='Não foi possível carregar o diário. Toque em Diário para tentar novamente.';}}
+async function loadHistory(){$('session-list').textContent='Carregando seu diário…';try{const {data,error}=await sb.from('surf_sessions').select('*').order('surf_date',{ascending:false}).limit(200);checkError(error);sessions=data;$('session-list').innerHTML=data.length?data.map(r=>`<article class="session-row"><div><h2>${esc(bootstrap.spots.find(s=>s.id===r.spot_id)?.profile.nome||r.spot_id)}</h2><p>${esc(niceDate(r.surf_date))}${r.starts_at?' · '+esc(r.starts_at.slice(0,5)):''}</p><p>${r.kind==='planned'?'Escolha antes de sair':'Sessão realizada'}${r.rating!==null?' · Nota '+decimal(r.rating)+'/5':''}</p><p class="notes">${esc(r.notes)}</p>${r.recommendation?(r.recommendation.legacy_id?'<span class="hint">Importado do histórico local; previsão original indisponível.</span>':'<span class="hint">Consulta original preservada com este registro.</span>'):''}</div><button data-edit="${esc(r.id)}">${r.kind==='planned'?'Dar parecer':'Editar'}</button></article>`).join(''):'<div class="empty"><h2>Seu diário começa na próxima sessão.</h2><p>Registre uma escolha ou conte como foi o surf.</p></div>';document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openSession(sessions.find(r=>r.id===b.dataset.edit)));}catch(e){$('session-list').textContent='Não foi possível carregar o diário. Toque em Diário para tentar novamente.';}}
 let installEvent;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvent=e;$('install').hidden=false;});$('install').onclick=async()=>{await installEvent?.prompt();$('install').hidden=true;};
 window.addEventListener('offline',()=>tell('Você está offline. Conecte-se para consultar ou salvar; previsões antigas não são mostradas como atuais.'));window.addEventListener('online',()=>tell('Conexão restabelecida. Você já pode consultar o mar.'));
 const today=new Date();$('surf-date').min=localDate(today);$('surf-date').max=localDate(new Date(today.getTime()+2*86400000));$('surf-date').value=localDate(new Date(today.getTime()+86400000));
