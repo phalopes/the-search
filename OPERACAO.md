@@ -27,3 +27,11 @@ Reverta apenas o commit responsável, rode os checks e envie à branch de public
 O cache do navegador guarda somente arquivos estáticos. Offline não apresenta previsão antiga. A instalação PWA depende do navegador e não substitui conexão para consultar ou salvar. Auth usa envio padrão do Supabase, sujeito aos limites do serviço; SMTP próprio não foi contratado.
 
 O histórico SQLite anterior permanece local. A estrutura de importação existe, mas a fila está vazia: seis registros aguardam autorização específica para envio de notas e avaliações ao Supabase. Se o dono já tiver conta, importar explicitamente para seu user_id; o gatilho de primeiro cadastro não será novamente executado.
+
+## Acesso por senha — 10/10/2026
+
+Sucede o login por link como rotina. Entrar usa signInWithPassword. Primeiro acesso do dono: botão Primeiro acesso ou esqueci minha senha envia recuperação para a conta existente e abre definição de senha. Senha escolhida pelo usuário, mínimo 12 caracteres, nunca uma senha compartilhada no código. Usuário autenticado pode alterar em Senha, informando a atual.
+
+Para convidar: adicionar o e-mail à allowlist privada, então usar Invite user no painel Supabase Authentication/Users com Site URL do app. O convite cria a conta e seu link abre a definição de senha. Não há cadastro público nem tela de envio de convites nesta v1. Não enviar convite sem autorização para o destinatário. E-mails ficam para convite/recuperação; o SMTP padrão restringe destinatários e volume, então convidados externos exigem SMTP próprio antes de expandir o piloto.
+
+Os seis registros SQLite foram importados com autorização explícita de Pedro: cinco sessões e uma escolha pré-sessão. Campo legacy_id torna a importação repetível sem duplicação. Relatos, notas e horários preservados; previsão original inexistente não é inventada.

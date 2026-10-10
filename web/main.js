@@ -33,13 +33,21 @@ async function loadUser(current){
  $('travel-field').hidden=!result.admin || !result.travel.length;
  $('app').hidden=false;$('nav').hidden=false;
  $('query-form').querySelector('button').disabled=false;
- tell('');show('ocean');$('results').innerHTML='<div class="empty"><h2>Vamos olhar o mar?</h2><p>Escolha o dia e consulte as condições. Ajuste sua disponibilidade em Meu surf.</p></div>';
+ tell('');show('ocean');if(passwordSetup)openPassword(true);$('results').innerHTML='<div class="empty"><h2>Vamos olhar o mar?</h2><p>Escolha o dia e consulte as condições. Ajuste sua disponibilidade em Meu surf.</p></div>';
  }catch(e){if(version!==generation)return;if(!navigator.onLine){$('offline').hidden=false;$('login').hidden=true;tell('Sem conexão.');}else{tell(e.message);$('login').hidden=false;}}
 }
-$('login-form').onsubmit=async e=>{e.preventDefault();const button=e.submitter;button.disabled=true;$('login-message').textContent='Enviando seu link…';
- try{const {error}=await sb.auth.signInWithOtp({email:$('email').value.trim(),options:{emailRedirectTo:location.origin,shouldCreateUser:true}});checkError(error);$('login-message').textContent='Confira seu e-mail e abra o link neste aparelho. Se não chegar, olhe o spam e aguarde um minuto antes de tentar novamente.';$('verify-form').hidden=false;}
- catch(e){$('login-message').textContent='Não foi possível enviar. Confira o e-mail autorizado e tente novamente em um minuto.';}finally{button.disabled=false;}};
-$('verify-form').onsubmit=async e=>{e.preventDefault();const {error}=await sb.auth.verifyOtp({email:$('email').value.trim(),token:$('otp').value.trim(),type:'email'});if(error)$('login-message').textContent='Código inválido ou vencido. Peça outro link.';};
+let passwordSetup = ['invite','recovery'].includes(new URLSearchParams(location.hash.slice(1)).get('type'));
+function openPassword(setup=false){passwordSetup=setup;$('password-form').reset();$('current-password-field').hidden=setup;$('current-password').required=!setup;$('password-message').textContent='';if(!$('password-dialog').open)$('password-dialog').showModal();}
+$('login-form').onsubmit=async e=>{e.preventDefault();const button=e.submitter;button.disabled=true;$('login-message').textContent='Entrando…';
+ try{const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});checkError(error);$('password').value='';$('login-message').textContent='';}
+ catch(e){$('login-message').textContent='Não foi possível entrar. Confira e-mail e senha ou use a recuperação de acesso.';}finally{button.disabled=false;}};
+$('recover').onclick=async e=>{const email=$('email');if(!email.reportValidity())return;const button=e.currentTarget;button.disabled=true;$('login-message').textContent='Solicitando acesso…';
+ try{const {error}=await sb.auth.resetPasswordForEmail(email.value.trim(),{redirectTo:location.origin});checkError(error);$('login-message').textContent='Se esse e-mail tiver acesso, você receberá um link para definir sua senha. Confira também o spam. Depois, entre normalmente com sua senha.';}
+ catch(e){$('login-message').textContent='Não foi possível enviar agora. Aguarde alguns minutos e tente novamente.';}finally{button.disabled=false;}};
+$('password-nav').onclick=()=>openPassword(false);
+$('password-form').onsubmit=async e=>{e.preventDefault();const password=$('new-password').value;if(password!==$('confirm-password').value){$('password-message').textContent='As senhas precisam ser iguais.';return;}const button=e.submitter;button.disabled=true;$('password-message').textContent='Salvando…';
+ try{const {error}=await sb.auth.updateUser({password,...(!passwordSetup?{current_password:$('current-password').value}:{})});checkError(error);$('password-form').reset();passwordSetup=false;$('password-dialog').close();tell('Senha salva. Nos próximos acessos, use seu e-mail e senha.');}
+ catch(e){$('password-message').textContent='Não foi possível salvar. Confira a senha atual, use pelo menos 12 caracteres ou solicite um novo link de recuperação.';}finally{button.disabled=false;}};
 $('retry').onclick=()=>loadUser(session);
 $('logout').onclick=async()=>{await sb.auth.signOut();tell('Você saiu.');};
 $('home-nav').onclick=()=>show('ocean');
@@ -93,6 +101,6 @@ let installEvent;window.addEventListener('beforeinstallprompt',e=>{e.preventDefa
 window.addEventListener('offline',()=>tell('Você está offline. Conecte-se para consultar ou salvar; previsões antigas não são mostradas como atuais.'));window.addEventListener('online',()=>tell('Conexão restabelecida. Você já pode consultar o mar.'));
 const today=new Date();$('surf-date').min=localDate(today);$('surf-date').max=localDate(new Date(today.getTime()+2*86400000));$('surf-date').value=localDate(new Date(today.getTime()+86400000));
 // SDK handles implicit email callback; credentials are removed from the URL afterwards.
-sb.auth.onAuthStateChange((_event,current)=>{setTimeout(()=>loadUser(current),0);});
+sb.auth.onAuthStateChange((event,current)=>{if(event==='PASSWORD_RECOVERY')passwordSetup=true;setTimeout(async()=>{await loadUser(current);if(current&&passwordSetup)openPassword(true);},0);});
 const {data,error}=await sb.auth.getSession();if(error)tell('Link inválido ou vencido. Solicite um novo acesso.');await loadUser(data.session);if(location.hash.includes('access_token'))history.replaceState({},'',location.pathname);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
