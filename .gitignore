@@ -30,3 +30,19 @@ data/*.sqlite
 # IDE
 .idea/
 .vscode/
+
+# Generated Python Workers bundle
+worker/src/vendor/
+worker/src/surfscout/
+worker/.wrangler/
+worker/node_modules/
+worker/.dev.vars
+.venv-workers/
+worker/python_modules/
+worker/.venv-workers/
+node_modules/
+web/app.js
+test-results/
+playwright-report/
+
+supabase/.temp/

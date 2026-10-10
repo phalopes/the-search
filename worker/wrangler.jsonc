@@ -1,0 +1,9 @@
+{
+  "name": "the-search",
+  "main": "src/entry.py",
+  "compatibility_date": "2026-10-10",
+  "compatibility_flags": ["python_workers"],
+  "workers_dev": true,
+  "assets": {"directory": "../web", "binding": "ASSETS", "run_worker_first": ["/api/*"]},
+  "vars": {"SUPABASE_URL": "https://txufklveyvlweiukzdsp.supabase.co", "SUPABASE_KEY": "sb_publishable_LqU71oWfLxT6deWk_YPcGw_zq78Et9p"}
+}

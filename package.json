@@ -1,0 +1,24 @@
+{
+  "name": "the-search-v1",
+  "version": "1.0.0",
+  "description": "Motor de recomendação de picos de surf (Florianópolis e região). Cruza dados de previsão (swell, vento, maré) com o perfil estático de cada pico para sugerir onde e quando surfar, de acordo com a janela de tempo e o nível do usuário.",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "esbuild web/main.js --bundle --format=esm --minify --outfile=web/app.js",
+    "test": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.3",
+    "esbuild": "0.28.2"
+  },
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
+  }
+}
