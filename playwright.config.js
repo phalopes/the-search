@@ -1,0 +1,2 @@
+import { defineConfig } from '@playwright/test';
+export default defineConfig({testDir:'tests/browser',timeout:30000,use:{baseURL:'http://127.0.0.1:4173',headless:true,...(process.env.SEARCH_CHROME?{launchOptions:{executablePath:process.env.SEARCH_CHROME}}:{})},webServer:{command:'python3 -m http.server 4173 --directory web',url:'http://127.0.0.1:4173',reuseExistingServer:!process.env.CI},reporter:'list'});
